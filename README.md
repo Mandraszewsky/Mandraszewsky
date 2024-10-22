@@ -58,7 +58,6 @@ Technologie i biblioteki: Figma
 ---
 
 ## <span style="color: darkblue;">**Aplikacja do kupowania i sprzedaży NFT**</span>  
-Całkowita obsługa majątku należącego do przedsiębiorstwa przy odwzorowaniu pełnej struktury lokalizacyjnej wraz z pełnym rozliczeniem kosztowym wszystkich składników majątkowych, a także repozytorium dokumentów umożliwiającym przechowywanie dokumentacji. Posiada rozszerzoną funkcjonalność dla ewidencji oraz inwentaryzacji majątku. <br/> <br/>
 Technologie i biblioteki: React.js, React-Redux, MUI, HTML, CSS
 
 ### Realizowane zadania (implementacja):
