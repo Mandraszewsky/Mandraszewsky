@@ -84,18 +84,45 @@ Projekt i implementacja aplikacji chmurowej na platformie ASP.NET Core tak, aby 
 Technologie i biblioteki: ASP.NET Core, Docker, SQL Server, Redis PostgreSQL, MediatR, RabbitMQ , YARP Reverse Proxy, Grafana Cloud 
 
 <br/>
-<p align="center">
-  <img src="https://github.com/Mandraszewsky/Images/blob/main/CNAppsWithSSMMP.png">
-</p>
+<div align="center">
+  <img src="https://github.com/Mandraszewsky/Images/blob/main/CNAppsWithSSMMP.png" alt="Alt text" />
+  <p>Architektura CNApps w oparciu o założenia SSMMP (źródło: opracowanie własne)[^1]</p>
+</div>
 <br/>
 
 Utworzony został obszar projektowy składający się z szeregu mikroserwisów i usług, odzwierciedlając tym samym strukturę CNApps na platformie ASP.NET Core. Następnie dokonany został podział tego obszaru na warstwy – sterowania i danych, za które odpowiada utworzona instancja Menadżera oraz Agenta. Warstwa danych jest otwarta na potencjalne operacje skalowania, oferując możliwość powielenia swoich własnych instancji, którymi będzie można zdalnie sterować i dowolnie przemieszczać, między kolejnymi węzłami Agentów. Tym samym zleca ona kolejne zadania instancjom, a ich wynik przekazuje innym obszarom (w domyśle Menadżerowi). Węzły dotyczy proces rekonfiguracji, z zachowaniem stałych instancji Agentów. Warstwa sterowania odpowiada za bezpośrednią rekonfigurację struktury oraz bieżące monitorowanie poszczególnych usług i serwisów. Obie warstwy zapewnione mają własne usługi bazodanowe.
 
 <br/>
-<p align="center">
-  <img src="https://github.com/Mandraszewsky/Images/blob/main/CQRS.png">
-</p>
+<div align="center">
+  <img src="https://github.com/Mandraszewsky/Images/blob/main/CQRS.png" alt="Alt text" />
+  <p>Ogólny widok poleceń we wzoru CQRS (źródło: https://learn.microsoft.com/pl-pl/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/microservice-application-layer-implementation-web-api dostęp – lipiec 2024)[^2]</p>
+</div>
 <br/>
 
 Obszar danych i sterowania wykorzystuje wzorce CQRS (Command and Query Responsibility Segregation) oraz MediatR, połączenie obu wzorców zaprezentowane. Pierwszy z nich, odpowiedzialny jest za segregację operacji odczytu i zapisu wewnątrz magazynu danych. Aktualizację ogranicza się do konkretnych zadań asynchronicznych, a samemu odczytowi uniemożliwia się dostęp do modyfikacji baz danych. Minimalizuje się w ten sposób niezgodność między danymi operacjami poleceń i zapytań, jednocześnie usprawniając wydajność poszczególnych warstw dostępowych. Modele takich operacji przeważnie izoluje się od siebie, co umożliwia użycie nawet oddzielnych typów baz danych. MediatR natomiast jest wzorcem behawioralnym, ponieważ bierze czynny udział w trakcie procesowania zadań. Wprowadza hermetyzację do komunikacji między obiektami w aplikacji, gdzie staje się pośrednikiem takich „rozmów”, czyli obiekty w takim wzorcu delegują swoje interakcje bezpośrednio do obiektu mediatora. 
+
+<br/>
+<div align="center">
+  <img src="https://github.com/Mandraszewsky/Images/blob/main/SSMMP.png" alt="Alt text" />
+  <p>Simple protocol to automate the executing, scaling, and reconfiguration of Cloud-Native Apps (źródło: https://github.com/sambrosz/SSMMP-a-simple-protocol-for-Service-Mesh-management dostęp - lipiec 2024)[^3]</p>
+</div>
+<br/>
+
+Ideologia protokołu SSMMP, na którym została oparta infrastruktura pracy badawczej, skupia się na mikroserwisach działających w obrębie natywnego przetwarzania chmurowego (ang. Cloud Native Applications) - aktywnie zaangażowanych w konfigurację własnych sesji komunikacyjnych. Ogranicza się tym samym implementację do jedynie drobnych i bardzo ogólnych zmian bazowego kodu, aby w żaden sposób nie kolidować z logiką biznesową działających w tej architekturze serwisów czy usług. W innym przypadku narażona zostać by mogła cała natywna struktura, powodując przy tym straty proporcjonalne do wielkości zakładanych planów biznesowych. SSMMP wyróżnia 3 głównych aktorów: Menadżera, Agenta oraz wszystkie pozostałe instancje usług działających w przyjmowanej strukturze – można je określić jako instancje związane bezpośrednio z biznesem. Za przykład można tutaj podać bramę API (ang. Application Programming Interface) czy usługę BaaS (ang. Backup as a Service). Protokół również zakłada możliwość skalowania tychże instancji tak, aby jednocześnie mogły być uruchomione wielokrotne wystąpienia tej samej usługi w obrębie jednolitej struktury
+
+<br/>
+<div align="center">
+  <img src="https://github.com/Mandraszewsky/Images/blob/main/Abstract%20graph%20of%20CNApp.png" alt="Alt text" />
+  <p>Abstract graph of CNApp - a simple example (źródło: https://github.com/sambrosz/SSMMP-a-simple-protocol-for-Service-Mesh-management dostęp - lipiec 2024)[^4]</p>
+</div>
+<br/>
+
+Abstrakcję przedstawić można na przykładzie powyższego grafu. Według tego schematu, krawędź połączenia zdefiniowana jest jako:
+(A, (P, S), B)
+gdzie A = api gateway, B = service, P = plug, S = socket.
+Samo (P, S) determinuje opisywany protokół, dla którego P oznacza wyjście A, a S wejście B. Nazwa docelowego serwisu B nie jest jawnie zawarta w serwisie A, więc Menadżer musi zadeklarować ją jako dodatkowy parametr konfiguracyjny. W tym celu serwis A wyśle żądanie przez swojego własnego Agenta do Menadżera, który dostarczy wszystkich potrzebnych informacji do zestawienia takiego połączenia (głównie numery portów i adresy sieciowe). Autorzy również wnioskują, że każdy serwis zawarty w takim schemacie powinien być generyczny, ponieważ A może zostać użyty jako komponent innego CNApps – (A, (P, S), C), gdzie C jest różne od B. Struktura CNApp, została zdefiniowana jako postać multigrafu skierowanego (zwanego także pseudografem, w którym występują krawędzie wielokrotne):
+
+𝒢:=(𝒱, ℰ)
+
+w którym 𝒱 i ℰ są oznaczeniami wierzchołków (zbiorów usług) oraz krawędzi (zbiorów połączeń). Wierzchołki 𝒱 są bezstanowe – koncentrując się tym samym na operacjach, które mają bezpośredni wpływ na zasoby, a nie ich stany. Podejście to sprawia, że każde żądanie będzie traktowane niezależnie, nie powodując zbędnego procesu przechowania dodatkowych porcji danych. Wymusza się w ten sposób zawarcie wszystkich niezbędnych informacji bezpośrednio w takim komunikacie, aby serwer mógł odpowiednio przeprocesować i zareagować na dane zdarzenie. Wierzchołki dzięki temu zyskują dodatkowy atrybut w postaci skalowalności, a to z kolei oznacza możliwość ich powielenia w taki sposób, aby mogły występować i działać jednocześnie w obrębie tej samej struktury. Może jednak wystąpić sytuacja, w której niektóre z nich będą nieaktywne w danym momencie. Protokół SSMMP zabezpiecza taką sytuację za pośrednictwem dynamicznie przeprowadzanych konfiguracji takich parametrów jak adresy sieciowe czy porty.
 
