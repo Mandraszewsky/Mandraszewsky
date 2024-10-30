@@ -1,7 +1,7 @@
 # 👋 Cześć, jestem Krzysztof!
 👩🏻‍💻 Studiowałem na Uniwersytecie w Siedlcach na kierunku Informatyka - osiągając tytuł magister inżynier (mgr-inz-inf) w 2024 roku. <br/>
 👩🏻‍💻 Tytuł samego inżyniera (inz-inf) uzyskałem na początku 2021 roku. <br/> <br/>
-👩🏻‍🎓 Komercyjną pracę zawodową rozpocząłem w połowie 2021 roku. Jestem programistą .NET i C#, ale mam za sobą również klikumiesięczny projekt jako frontendowiec w React, a obecnie jestek w trakcie nauki Angulara. <br/>
+👩🏻‍🎓 Komercyjną pracę zawodową rozpocząłem w połowie 2021 roku. Jestem programistą .NET i C#, ale mam za sobą również klikumiesięczny projekt jako frontendowiec w React, a obecnie jestek w trakcie nauki Angulara. <br/> <br/>
 👩🏻‍🎓 Z ciekawostek o mnie, przez chwilę programowałem komercyjnie (jako fullstack) w PHP i JS.
 
 # 💻 Tech Stack:
